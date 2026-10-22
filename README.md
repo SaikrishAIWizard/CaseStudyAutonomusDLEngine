@@ -103,11 +103,13 @@ uses the existing `Tensor` matrix multiplication and broadcasted addition, so
 the Task 1 backward engine computes weight and bias gradients. `Sequential`
 composes layers and collects their trainable parameters.
 
-`Adam` updates first and second gradient moments, applies bias correction, and
-uses decoupled AdamW weight decay. Optional binary masks can be passed to
-`step(masks={parameter_index: mask})`; inactive values and moments are cleared
-so a later re-enabled connection starts with fresh optimizer state. This is
-mask correctness support, not a pruning scheduler.
+`Adam` updates first and second gradient moments, applies per-entry bias
+correction, and uses decoupled AdamW weight decay. Optional binary masks can be
+passed to `step(masks={parameter_index: mask})`; inactive values, moments, and
+bias-correction ages are cleared so a later re-enabled connection starts with
+fresh optimizer state. See `task2_correctness_proof.ipynb` for an executable
+masked-gradient, prune/revive, and training demonstration. This is mask
+correctness support, not a pruning scheduler.
 
 `train_classifier` shuffles data each epoch, includes the final partial batch,
 computes stable cross-entropy through Task 1, clips the global gradient norm,

@@ -178,6 +178,45 @@ def test_adam_mask_clears_moments_and_revived_weights_start_fresh() -> None:
     assert parameter.data[1] != 0.0
 
 
+def test_masked_linear_gradient_and_revived_adam_age_are_fresh() -> None:
+    layer = Linear(1, 2, activation="linear", rng=np.random.default_rng(3))
+    layer.W.data[...] = [[2.0, 3.0]]
+    layer.b.data[...] = [0.0, 0.0]
+    layer.mask[...] = [[1.0, 0.0]]
+    optimizer = Adam([layer.W], lr=0.1, weight_decay=0.0)
+
+    output = layer(np.array([[4.0]]))
+    np.testing.assert_allclose(output.data, [[8.0, 0.0]])
+    sum(output).backward()
+    np.testing.assert_allclose(layer.W.grad, [[4.0, 0.0]])
+    optimizer.step(masks={0: layer.mask})
+    np.testing.assert_array_equal(layer.W.data[0, 1], 0.0)
+    np.testing.assert_array_equal(optimizer.m[0][0, 1], 0.0)
+    np.testing.assert_array_equal(optimizer.v[0][0, 1], 0.0)
+    np.testing.assert_array_equal(optimizer.step_counts[0][0, 1], 0)
+
+    for _ in range(5):
+        layer.W.grad = np.array([[4.0, 1000.0]])
+        optimizer.step(masks={0: layer.mask})
+        np.testing.assert_array_equal(layer.W.data[0, 1], 0.0)
+        np.testing.assert_array_equal(optimizer.m[0][0, 1], 0.0)
+        np.testing.assert_array_equal(optimizer.v[0][0, 1], 0.0)
+        np.testing.assert_array_equal(optimizer.step_counts[0][0, 1], 0)
+
+    layer.mask[...] = [[1.0, 1.0]]
+    layer.W.grad = np.array([[4.0, 2.0]])
+    optimizer.step(masks={0: layer.mask})
+
+    fresh_parameter = Parameter([0.0])
+    fresh_optimizer = Adam([fresh_parameter], lr=0.1, weight_decay=0.0)
+    fresh_parameter.grad = np.array([2.0])
+    fresh_optimizer.step()
+    np.testing.assert_allclose(layer.W.data[0, 1], fresh_parameter.data[0])
+    np.testing.assert_allclose(optimizer.m[0][0, 1], fresh_optimizer.m[0][0])
+    np.testing.assert_allclose(optimizer.v[0][0, 1], fresh_optimizer.v[0][0])
+    np.testing.assert_array_equal(optimizer.step_counts[0][0, 1], 1)
+
+
 def test_adam_enforces_mask_even_when_parameter_has_no_gradient() -> None:
     parameter = Parameter([4.0, -3.0])
     optimizer = Adam([parameter])

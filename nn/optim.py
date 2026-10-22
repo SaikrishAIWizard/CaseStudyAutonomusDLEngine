@@ -55,6 +55,9 @@ class Adam:
         self.t = 0
         self.m = [np.zeros_like(parameter.data) for parameter in self.params]
         self.v = [np.zeros_like(parameter.data) for parameter in self.params]
+        self.step_counts = [
+            np.zeros_like(parameter.data, dtype=np.int64) for parameter in self.params
+        ]
 
     def zero_grad(self) -> None:
         """Clear gradients before the next training batch."""
@@ -65,8 +68,9 @@ class Adam:
         """Apply one AdamW update, optionally freezing masked parameter entries.
 
         Masks are keyed by parameter index and must contain only zeroes and ones.
-        Inactive entries are set to zero and their moment buffers are cleared, so
-        a subsequently re-enabled entry starts with clean optimizer state.
+        Inactive entries are set to zero and their moment buffers and per-entry
+        bias-correction ages are cleared, so a subsequently re-enabled entry
+        starts with clean optimizer state.
         """
         prepared_masks: dict[int, np.ndarray] = {}
         if masks is not None:
@@ -112,10 +116,9 @@ class Adam:
                 parameter.data[inactive] = 0.0
                 self.m[index][inactive] = 0.0
                 self.v[index][inactive] = 0.0
+                self.step_counts[index][inactive] = 0
 
         self.t += 1
-        correction1 = 1.0 - self.beta1**self.t
-        correction2 = 1.0 - self.beta2**self.t
 
         for index, parameter in enumerate(self.params):
             if parameter.grad is None:
@@ -125,6 +128,9 @@ class Adam:
             mask = prepared_masks.get(index)
             if mask is not None:
                 gradient = gradient * mask
+                active = mask != 0
+            else:
+                active = np.ones(parameter.shape, dtype=bool)
 
             self.m[index] = (
                 self.beta1 * self.m[index] + (1.0 - self.beta1) * gradient
@@ -133,13 +139,26 @@ class Adam:
                 self.beta2 * self.v[index]
                 + (1.0 - self.beta2) * np.square(gradient)
             )
-            if mask is not None:
-                inactive = mask == 0
-                self.m[index][inactive] = 0.0
-                self.v[index][inactive] = 0.0
+            self.step_counts[index][active] += 1
 
-            corrected_m = self.m[index] / correction1
-            corrected_v = self.v[index] / correction2
+            entry_correction1 = 1.0 - np.power(
+                self.beta1, self.step_counts[index]
+            )
+            entry_correction2 = 1.0 - np.power(
+                self.beta2, self.step_counts[index]
+            )
+            corrected_m = np.divide(
+                self.m[index],
+                entry_correction1,
+                out=np.zeros_like(self.m[index]),
+                where=active,
+            )
+            corrected_v = np.divide(
+                self.v[index],
+                entry_correction2,
+                out=np.zeros_like(self.v[index]),
+                where=active,
+            )
             update = corrected_m / (np.sqrt(corrected_v) + self.eps)
 
             if self.weight_decay:
