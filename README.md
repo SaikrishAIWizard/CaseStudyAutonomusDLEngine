@@ -1,9 +1,9 @@
-# Aqua Case Study - Task 1
+# Aqua Case Study - Tasks 1 and 2
 
-This repository currently implements **Part 1 only** of the Aqua Platform
-challenge: a small reverse-mode automatic differentiation engine built with
-Python and NumPy. The MLP and optimizer, self-pruning training loop, and Pareto
-sweeps from Parts 2-4 are not implemented.
+This repository implements the first two parts of the Aqua Platform challenge:
+a reverse-mode automatic differentiation engine and a small NumPy-only MLP
+with AdamW training. Self-pruning schedules, connection regrowth, and Pareto
+sweeps from Parts 3-4 are not implemented.
 
 ## Requirements
 
@@ -29,17 +29,18 @@ If PowerShell blocks activation, run the commands with the virtual environment's
 interpreter directly, for example `.venv\Scripts\python.exe -m pytest -q
 tests\test_autodiff.py`.
 
-## Run the Task 1 tests
-
-Run the complete Task 1 verification suite from the repository root:
+## Run the tests
+run task1 only
+python -m pytest -q tests\test_autodiff.py
+Run both the Task 1 and Task 2 tests from the repository root:
 
 ```powershell
-python -m pytest -q tests\test_autodiff.py
+python -m pytest -q tests
 ```
 
-The tests check operation gradients against central finite differences, graph
-gradient accumulation, broadcasting, reductions, matrix multiplication,
-activations, stable softmax cross-entropy, and masked-weight behavior.
+Task 1 tests check the autodiff operations and gradients. Task 2 tests check
+initialization, layers, AdamW updates, masking state, gradient clipping, and
+mini-batch training.
 
 ## Minimal usage
 
@@ -64,7 +65,58 @@ print("weight gradients:", weights.grad)
 loss visits those operations in reverse topological order and accumulates
 gradients on tensors that requested them.
 
+## Task 2 MLP training demo
+
+Run the deterministic three-class synthetic classification example:
+
+```powershell
+python -m train.trainer
+```
+
+Each printed line is one epoch's mean cross-entropy loss and training accuracy.
+The demo uses He initialization for ReLU layers, Xavier initialization for the
+linear output layer, shuffled mini-batches, global gradient clipping, and Adam
+with decoupled weight decay.
+
+The core APIs are also available directly:
+
+```python
+import numpy as np
+
+from nn import Adam, Linear, ReLU, Sequential
+from train.trainer import train_classifier
+
+rng = np.random.default_rng(7)
+model = Sequential(
+    Linear(2, 16, activation="relu", rng=rng),
+    ReLU(),
+    Linear(16, 3, activation="linear", rng=rng),
+)
+optimizer = Adam(model.parameters(), lr=0.01, weight_decay=1e-4)
+history = train_classifier(model, optimizer, features, class_ids)
+print(history[-1])
+```
+
+`Linear` uses He normal initialization for ReLU and Xavier uniform
+initialization for tanh, sigmoid, or linear activations. Its affine computation
+uses the existing `Tensor` matrix multiplication and broadcasted addition, so
+the Task 1 backward engine computes weight and bias gradients. `Sequential`
+composes layers and collects their trainable parameters.
+
+`Adam` updates first and second gradient moments, applies bias correction, and
+uses decoupled AdamW weight decay. Optional binary masks can be passed to
+`step(masks={parameter_index: mask})`; inactive values and moments are cleared
+so a later re-enabled connection starts with fresh optimizer state. This is
+mask correctness support, not a pruning scheduler.
+
+`train_classifier` shuffles data each epoch, includes the final partial batch,
+computes stable cross-entropy through Task 1, clips the global gradient norm,
+and returns one loss/accuracy record per epoch. Provide the same model
+initialization seed and training shuffle seed to reproduce a run.
+
 ## Main API
+
+### Task 1 autodiff
 
 - `Tensor(data, requires_grad=False)`: wraps a NumPy-compatible value.
 - Arithmetic operators and `matmul`: differentiable addition, subtraction,
@@ -80,10 +132,25 @@ gradients on tensors that requested them.
   gradient with central finite differences and raises `AssertionError` if its
   relative error reaches the requested tolerance.
 
-`apply_mask` is an autodiff primitive, not a training-time pruning manager. It
-does not implement optimizer updates or reset momentum/Adam buffers when a
-connection is pruned and later revived. That optimizer-state behavior must be
-implemented and tested alongside the optimizer in Part 2.
+### Task 2 neural network and training
+
+- `Parameter(data)`: a trainable leaf `Tensor`.
+- `Module.parameters()` and `Module.zero_grad()`: collect parameters from
+  nested layers and clear their accumulated gradients.
+- `Linear(in_features, out_features, activation, rng)`: affine layer with
+  activation-aware weight initialization and binary-mask support.
+- `Sequential(*modules)`: compose layers and activation modules.
+- `Adam(parameters, ...)`: pure-NumPy Adam with bias correction and optional
+  decoupled weight decay.
+- `train_classifier(...)`: seeded, shuffled mini-batch classifier training;
+  returns epoch loss and accuracy.
+- `clip_grad_norm(parameters, max_norm)`: clips the combined gradient norm
+  before optimizer updates.
+
+`apply_mask` remains an autodiff primitive. The Task 2 `Linear` layer reuses
+it to keep masked weights out of the forward computation and give them zero
+gradients. The optimizer also clears moments for inactive entries; no pruning
+schedule or regrowth logic is included.
 
 ## Project layout
 
@@ -95,4 +162,13 @@ autodiff/
     checks.py     Finite-difference gradient checker
 tests/
     test_autodiff.py
+    test_nn.py
+    test_training.py
+nn/
+    module.py       Module and Parameter base classes
+    layers.py       Linear, Sequential, and activation modules
+    init.py         He normal and Xavier uniform initializers
+    optim.py        Adam with bias correction and AdamW decay
+train/
+    trainer.py      Mini-batch loop, metrics, clipping, and runnable demo
 ```
