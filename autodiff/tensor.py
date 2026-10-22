@@ -56,7 +56,7 @@ class Tensor:
                     f"Gradient shape {seed.shape} does not match tensor shape "
                     f"{self.shape}"
                 )
-
+        #iterative Post-Order Depth-First Search (DFS) to perform a topological sort of your computational graph.
         topo: list[Tensor] = []
         visited: set[Tensor] = set()
         stack: list[tuple[Tensor, bool]] = [(self, False)]
@@ -68,6 +68,8 @@ class Tensor:
                 visited.add(node)
                 stack.append((node, True))
                 stack.extend((parent, False) for parent in reversed(node.parents))
+
+        #-----------------------------------------------------------------
 
         local_grads: dict[Tensor, FloatArray] = {self: seed.copy()}
         for node in reversed(topo):
