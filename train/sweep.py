@@ -11,7 +11,7 @@ import time
 import numpy as np
 from numpy.typing import ArrayLike
 
-from autodiff import Tensor
+from engine import Tensor
 from nn import Adam, Linear, ReLU, Sequential, Sigmoid, Tanh
 from prune import CubicPruningSchedule, TaylorPruner
 from train.trainer import train_classifier

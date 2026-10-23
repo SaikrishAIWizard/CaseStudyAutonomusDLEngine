@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 from numpy.typing import ArrayLike
 
-from autodiff import Tensor, apply_mask, relu, sigmoid, tanh
+from engine import Tensor, apply_mask, relu, sigmoid, tanh
 
 from .init import he_normal, xavier_uniform
 from .module import Module, Parameter, validate_modules

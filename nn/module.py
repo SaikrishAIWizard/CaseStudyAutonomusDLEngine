@@ -4,7 +4,7 @@ from collections.abc import Iterable
 
 from numpy.typing import ArrayLike, NDArray
 
-from autodiff import Tensor
+from engine import Tensor
 
 
 class Parameter(Tensor):

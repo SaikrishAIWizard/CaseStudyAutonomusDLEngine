@@ -8,7 +8,7 @@ from typing import Literal
 import numpy as np
 from numpy.typing import ArrayLike
 
-from autodiff import Tensor, softmax_cross_entropy
+from engine import Tensor, softmax_cross_entropy
 from nn import Adam, Linear, ReLU, Sequential
 from nn.module import Module, Parameter
 from prune import CubicPruningSchedule, TaylorPruner
@@ -187,7 +187,7 @@ def train_classifier(
     return history
 
 
-def _make_demo_data(seed: int = 7) -> tuple[np.ndarray, np.ndarray]:
+def make_demo_data(seed: int = 7) -> tuple[np.ndarray, np.ndarray]:
     """Build a deterministic three-class dataset without extra dependencies."""
     rng = np.random.default_rng(seed)
     centers = np.array([[-2.0, -1.0], [2.0, -1.0], [0.0, 2.0]])
@@ -205,7 +205,7 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=7)
     args = parser.parse_args()
 
-    features, labels = _make_demo_data(args.seed)
+    features, labels = make_demo_data(args.seed)
     rng = np.random.default_rng(args.seed)
     model = Sequential(
         Linear(2, 16, activation="relu", rng=rng),
