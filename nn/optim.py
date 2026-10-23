@@ -64,6 +64,10 @@ class Adam:
         for parameter in self.params:
             parameter.grad = None
 
+    def apply_masks(self, masks: Mapping[int, ArrayLike]) -> None:
+        """Enforce binary parameter masks and clear inactive Adam state."""
+        self._apply_prepared_masks(self._prepare_masks(masks))
+
     def step(self, masks: Mapping[int, ArrayLike] | None = None) -> None:
         """Apply one AdamW update, optionally freezing masked parameter entries.
 
@@ -72,30 +76,7 @@ class Adam:
         bias-correction ages are cleared, so a subsequently re-enabled entry
         starts with clean optimizer state.
         """
-        prepared_masks: dict[int, np.ndarray] = {}
-        if masks is not None:
-            if not isinstance(masks, Mapping):
-                raise TypeError("masks must map parameter indices to binary masks")
-            for index, mask in masks.items():
-                if (
-                    not isinstance(index, int)
-                    or isinstance(index, bool)
-                    or index < 0
-                    or index >= len(self.params)
-                ):
-                    raise ValueError(f"Invalid parameter index in masks: {index}")
-                mask_array = np.asarray(mask)
-                if not np.all(np.isin(mask_array, (0, 1))):
-                    raise ValueError("Optimizer masks must contain only zeros and ones")
-                try:
-                    prepared_masks[index] = np.broadcast_to(
-                        mask_array, self.params[index].shape
-                    ).astype(np.float64, copy=True)
-                except ValueError as exc:
-                    raise ValueError(
-                        f"Mask shape {mask_array.shape} cannot be broadcast to "
-                        f"parameter shape {self.params[index].shape}"
-                    ) from exc
+        prepared_masks = self._prepare_masks(masks)
 
         for parameter in self.params:
             if parameter.grad is None:
@@ -109,14 +90,7 @@ class Adam:
             if not np.all(np.isfinite(gradient)):
                 raise FloatingPointError("Adam received a non-finite gradient")
 
-        for index, parameter in enumerate(self.params):
-            mask = prepared_masks.get(index)
-            if mask is not None:
-                inactive = mask == 0
-                parameter.data[inactive] = 0.0
-                self.m[index][inactive] = 0.0
-                self.v[index][inactive] = 0.0
-                self.step_counts[index][inactive] = 0
+        self._apply_prepared_masks(prepared_masks)
 
         self.t += 1
 
@@ -169,3 +143,41 @@ class Adam:
             parameter.data -= self.lr * update
             if mask is not None:
                 parameter.data[mask == 0] = 0.0
+
+    def _prepare_masks(
+        self, masks: Mapping[int, ArrayLike] | None
+    ) -> dict[int, np.ndarray]:
+        prepared: dict[int, np.ndarray] = {}
+        if masks is None:
+            return prepared
+        if not isinstance(masks, Mapping):
+            raise TypeError("masks must map parameter indices to binary masks")
+        for index, mask in masks.items():
+            if (
+                not isinstance(index, int)
+                or isinstance(index, bool)
+                or index < 0
+                or index >= len(self.params)
+            ):
+                raise ValueError(f"Invalid parameter index in masks: {index}")
+            mask_array = np.asarray(mask)
+            if not np.all(np.isin(mask_array, (0, 1))):
+                raise ValueError("Optimizer masks must contain only zeros and ones")
+            try:
+                prepared[index] = np.broadcast_to(
+                    mask_array, self.params[index].shape
+                ).astype(np.float64, copy=True)
+            except ValueError as exc:
+                raise ValueError(
+                    f"Mask shape {mask_array.shape} cannot be broadcast to "
+                    f"parameter shape {self.params[index].shape}"
+                ) from exc
+        return prepared
+
+    def _apply_prepared_masks(self, masks: Mapping[int, np.ndarray]) -> None:
+        for index, mask in masks.items():
+            inactive = mask == 0
+            self.params[index].data[inactive] = 0.0
+            self.m[index][inactive] = 0.0
+            self.v[index][inactive] = 0.0
+            self.step_counts[index][inactive] = 0

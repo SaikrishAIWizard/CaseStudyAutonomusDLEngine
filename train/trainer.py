@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 import math
+from typing import Literal
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -10,6 +11,7 @@ from numpy.typing import ArrayLike
 from autodiff import Tensor, softmax_cross_entropy
 from nn import Adam, Linear, ReLU, Sequential
 from nn.module import Module, Parameter
+from prune import CubicPruningSchedule, TaylorPruner
 
 
 @dataclass(frozen=True)
@@ -19,6 +21,7 @@ class EpochMetrics:
     epoch: int
     loss: float
     accuracy: float
+    sparsity: float = 0.0
 
 
 def clip_grad_norm(
@@ -60,6 +63,9 @@ def train_classifier(
     batch_size: int = 32,
     seed: int = 0,
     max_grad_norm: float = 5.0,
+    pruning_schedule: CubicPruningSchedule | None = None,
+    pruner: TaylorPruner | None = None,
+    pruning_criterion: Literal["taylor", "magnitude"] = "taylor",
 ) -> list[EpochMetrics]:
     """Train a classifier with shuffled mini-batches and mean cross-entropy."""
     if not isinstance(model, Module):
@@ -78,6 +84,16 @@ def train_classifier(
         or max_grad_norm <= 0
     ):
         raise ValueError("max_grad_norm must be a finite positive number")
+    if (pruning_schedule is None) != (pruner is None):
+        raise ValueError("pruning_schedule and pruner must be provided together")
+    if pruning_schedule is not None and not isinstance(
+        pruning_schedule, CubicPruningSchedule
+    ):
+        raise TypeError("pruning_schedule must be a CubicPruningSchedule")
+    if pruner is not None and not isinstance(pruner, TaylorPruner):
+        raise TypeError("pruner must be a TaylorPruner")
+    if pruning_criterion not in ("taylor", "magnitude"):
+        raise ValueError("pruning_criterion must be 'taylor' or 'magnitude'")
 
     features = np.asarray(inputs, dtype=np.float64)
     targets = np.asarray(labels)
@@ -97,6 +113,11 @@ def train_classifier(
         id(parameter) for parameter in optimizer.params
     }:
         raise ValueError("optimizer parameters must match the model parameters")
+    model_parameter_ids = {id(parameter) for parameter in model_parameters}
+    if pruner is not None and any(
+        id(layer.W) not in model_parameter_ids for layer in pruner.layers
+    ):
+        raise ValueError("pruner layers must belong to the training model")
 
     rng = np.random.default_rng(seed)
     parameter_indices = {
@@ -143,11 +164,23 @@ def train_classifier(
                 np.sum(np.argmax(logits.data, axis=1) == batch_labels)
             )
 
+        if (
+            pruner is not None
+            and pruning_schedule is not None
+            and pruning_schedule.should_update(epoch)
+        ):
+            pruner.step(
+                pruning_schedule.sparsity_at(epoch),
+                optimizer,
+                criterion=pruning_criterion,
+            )
+
         history.append(
             EpochMetrics(
                 epoch=epoch,
                 loss=epoch_loss / sample_count,
                 accuracy=correct / sample_count,
+                sparsity=pruner.sparsity if pruner is not None else 0.0,
             )
         )
 

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560">
+<rect width="100%" height="100%" fill="white"/>
+<text x="450" y="26" text-anchor="middle" font-family="sans-serif" font-size="18">Held-out accuracy vs. achieved sparsity</text>
+<line x1="90.0" y1="45" x2="90.0" y2="480" stroke="#dddddd"/>
+<text x="90.0" y="502" text-anchor="middle" font-family="sans-serif" font-size="12">0%</text>
+<line x1="245.0" y1="45" x2="245.0" y2="480" stroke="#dddddd"/>
+<text x="245.0" y="502" text-anchor="middle" font-family="sans-serif" font-size="12">20%</text>
+<line x1="400.0" y1="45" x2="400.0" y2="480" stroke="#dddddd"/>
+<text x="400.0" y="502" text-anchor="middle" font-family="sans-serif" font-size="12">40%</text>
+<line x1="555.0" y1="45" x2="555.0" y2="480" stroke="#dddddd"/>
+<text x="555.0" y="502" text-anchor="middle" font-family="sans-serif" font-size="12">60%</text>
+<line x1="710.0" y1="45" x2="710.0" y2="480" stroke="#dddddd"/>
+<text x="710.0" y="502" text-anchor="middle" font-family="sans-serif" font-size="12">80%</text>
+<line x1="865.0" y1="45" x2="865.0" y2="480" stroke="#dddddd"/>
+<text x="865.0" y="502" text-anchor="middle" font-family="sans-serif" font-size="12">100%</text>
+<line x1="90" y1="480.0" x2="865" y2="480.0" stroke="#dddddd"/>
+<text x="78" y="484.0" text-anchor="end" font-family="sans-serif" font-size="12">0%</text>
+<line x1="90" y1="393.0" x2="865" y2="393.0" stroke="#dddddd"/>
+<text x="78" y="397.0" text-anchor="end" font-family="sans-serif" font-size="12">20%</text>
+<line x1="90" y1="306.0" x2="865" y2="306.0" stroke="#dddddd"/>
+<text x="78" y="310.0" text-anchor="end" font-family="sans-serif" font-size="12">40%</text>
+<line x1="90" y1="219.0" x2="865" y2="219.0" stroke="#dddddd"/>
+<text x="78" y="223.0" text-anchor="end" font-family="sans-serif" font-size="12">60%</text>
+<line x1="90" y1="132.0" x2="865" y2="132.0" stroke="#dddddd"/>
+<text x="78" y="136.0" text-anchor="end" font-family="sans-serif" font-size="12">80%</text>
+<line x1="90" y1="45.0" x2="865" y2="45.0" stroke="#dddddd"/>
+<text x="78" y="49.0" text-anchor="end" font-family="sans-serif" font-size="12">100%</text>
+<line x1="90" y1="480" x2="865" y2="480" stroke="#222"/>
+<line x1="90" y1="45" x2="90" y2="480" stroke="#222"/>
+<text x="477.5" y="540" text-anchor="middle" font-family="sans-serif" font-size="14">Achieved weight sparsity</text>
+<text x="22" y="262.5" transform="rotate(-90 22 262.5)" text-anchor="middle" font-family="sans-serif" font-size="14">Test accuracy</text>
+<polyline points="90.00,45.00 477.50,45.00 671.25,45.00 748.75,79.08 787.50,166.80 826.25,335.00 845.62,335.00" fill="none" stroke="#d95f02" stroke-width="2.5"/>
+<line x1="90.00" y1="45.00" x2="90.00" y2="45.00" stroke="#d95f02"/>
+<circle cx="90.00" cy="45.00" r="4" fill="#d95f02"><title>magnitude: accuracy 1.0000 ± 0.0000, sparsity 0.0000</title></circle>
+<line x1="477.50" y1="45.00" x2="477.50" y2="45.00" stroke="#d95f02"/>
+<circle cx="477.50" cy="45.00" r="4" fill="#d95f02"><title>magnitude: accuracy 1.0000 ± 0.0000, sparsity 0.5000</title></circle>
+<line x1="671.25" y1="45.00" x2="671.25" y2="45.00" stroke="#d95f02"/>
+<circle cx="671.25" cy="45.00" r="4" fill="#d95f02"><title>magnitude: accuracy 1.0000 ± 0.0000, sparsity 0.7500</title></circle>
+<line x1="748.75" y1="45.00" x2="748.75" y2="142.05" stroke="#d95f02"/>
+<circle cx="748.75" cy="79.08" r="4" fill="#d95f02"><title>magnitude: accuracy 0.9217 ± 0.1448, sparsity 0.8500</title></circle>
+<line x1="787.50" y1="50.95" x2="787.50" y2="282.65" stroke="#d95f02"/>
+<circle cx="787.50" cy="166.80" r="4" fill="#d95f02"><title>magnitude: accuracy 0.7200 ± 0.2663, sparsity 0.9000</title></circle>
+<line x1="826.25" y1="335.00" x2="826.25" y2="335.00" stroke="#d95f02"/>
+<circle cx="826.25" cy="335.00" r="4" fill="#d95f02"><title>magnitude: accuracy 0.3333 ± 0.0000, sparsity 0.9500</title></circle>
+<line x1="845.62" y1="335.00" x2="845.62" y2="335.00" stroke="#d95f02"/>
+<circle cx="845.62" cy="335.00" r="4" fill="#d95f02"><title>magnitude: accuracy 0.3333 ± 0.0000, sparsity 0.9750</title></circle>
+<line x1="735" y1="63" x2="760" y2="63" stroke="#d95f02" stroke-width="3"/>
+<text x="768" y="67" font-family="sans-serif" font-size="12">Magnitude</text>
+<polyline points="90.00,45.00 477.50,45.00 671.25,45.00 748.75,45.00 787.50,46.45 826.25,198.70 845.62,252.35" fill="none" stroke="#1b9e77" stroke-width="2.5"/>
+<line x1="90.00" y1="45.00" x2="90.00" y2="45.00" stroke="#1b9e77"/>
+<circle cx="90.00" cy="45.00" r="4" fill="#1b9e77"><title>taylor: accuracy 1.0000 ± 0.0000, sparsity 0.0000</title></circle>
+<line x1="477.50" y1="45.00" x2="477.50" y2="45.00" stroke="#1b9e77"/>
+<circle cx="477.50" cy="45.00" r="4" fill="#1b9e77"><title>taylor: accuracy 1.0000 ± 0.0000, sparsity 0.5000</title></circle>
+<line x1="671.25" y1="45.00" x2="671.25" y2="45.00" stroke="#1b9e77"/>
+<circle cx="671.25" cy="45.00" r="4" fill="#1b9e77"><title>taylor: accuracy 1.0000 ± 0.0000, sparsity 0.7500</title></circle>
+<line x1="748.75" y1="45.00" x2="748.75" y2="45.00" stroke="#1b9e77"/>
+<circle cx="748.75" cy="45.00" r="4" fill="#1b9e77"><title>taylor: accuracy 1.0000 ± 0.0000, sparsity 0.8500</title></circle>
+<line x1="787.50" y1="45.00" x2="787.50" y2="48.44" stroke="#1b9e77"/>
+<circle cx="787.50" cy="46.45" r="4" fill="#1b9e77"><title>taylor: accuracy 0.9967 ± 0.0046, sparsity 0.9000</title></circle>
+<line x1="826.25" y1="101.04" x2="826.25" y2="296.36" stroke="#1b9e77"/>
+<circle cx="826.25" cy="198.70" r="4" fill="#1b9e77"><title>taylor: accuracy 0.6467 ± 0.2245, sparsity 0.9500</title></circle>
+<line x1="845.62" y1="176.77" x2="845.62" y2="327.93" stroke="#1b9e77"/>
+<circle cx="845.62" cy="252.35" r="4" fill="#1b9e77"><title>taylor: accuracy 0.5233 ± 0.1737, sparsity 0.9750</title></circle>
+<line x1="735" y1="81" x2="760" y2="81" stroke="#1b9e77" stroke-width="3"/>
+<text x="768" y="85" font-family="sans-serif" font-size="12">Taylor</text>
+</svg>

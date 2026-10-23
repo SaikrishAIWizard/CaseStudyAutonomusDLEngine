@@ -74,7 +74,6 @@ class Sequential(Module):
             masks.update(module.parameter_masks())
         return masks
 
-
 class ReLU(Module):
     def forward(self, inputs: ArrayLike | Tensor) -> Tensor:
         return relu(inputs)

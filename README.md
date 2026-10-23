@@ -1,9 +1,9 @@
-# Aqua Case Study - Tasks 1 and 2
+# Aqua Case Study - Tasks 1 to 4
 
-This repository implements the first two parts of the Aqua Platform challenge:
-a reverse-mode automatic differentiation engine and a small NumPy-only MLP
-with AdamW training. Self-pruning schedules, connection regrowth, and Pareto
-sweeps from Parts 3-4 are not implemented.
+This repository implements Tasks 1-4 of the Aqua Platform challenge: a
+reverse-mode autodiff engine, a NumPy-only MLP with AdamW training,
+Taylor-saliency pruning with a gradual cubic schedule, and sparsity/accuracy
+and sparse-inference evaluation. Bonus connection regrowth is not implemented.
 
 ## Requirements
 
@@ -30,17 +30,22 @@ interpreter directly, for example `.venv\Scripts\python.exe -m pytest -q
 tests\test_autodiff.py`.
 
 ## Run the tests
-run task1 only
-python -m pytest -q tests\test_autodiff.py
-Run both the Task 1 and Task 2 tests from the repository root:
+
+From the repository root, run Task 1 alone, Task 4 alone, or the complete
+regression suite:
 
 ```powershell
+python -m pytest -q tests\test_autodiff.py
+python -m pytest -q tests\test_sweep.py
 python -m pytest -q tests
 ```
 
-Task 1 tests check the autodiff operations and gradients. Task 2 tests check
-initialization, layers, AdamW updates, masking state, gradient clipping, and
-mini-batch training.
+Task 1 tests check autodiff operations and gradients. Task 2 tests check
+initialization, layers, AdamW updates, gradient clipping, and mini-batch
+training. Task 3 tests check Taylor saliency, the cubic schedule, exact global
+sparsity, binary masks, and optimizer-state protection. Task 4 tests check
+pruning comparisons, CSR conversion and inference, FLOP accounting, sweep
+reporting, and output files.
 
 ## Minimal usage
 
@@ -116,6 +121,61 @@ computes stable cross-entropy through Task 1, clips the global gradient norm,
 and returns one loss/accuracy record per epoch. Provide the same model
 initialization seed and training shuffle seed to reproduce a run.
 
+## Task 3 gradual pruning
+
+Prune with the first-order Taylor score
+`abs(weight * gradient)`. If removing a connection changes its weight by
+`-weight`, the first-order loss change is approximately
+`-weight * gradient`; its absolute value estimates the impact of removing that
+connection.
+
+`TaylorPruner` ranks active weights across the model's `Linear` layers and
+prunes the lowest scores until it reaches the requested global sparsity.
+Connections are masked in the forward pass by the existing Task 1
+`apply_mask`, and pruned weights are set to exact zero. The pruner also asks
+Adam to clear the corresponding moment and per-weight bias-correction state.
+Pruning is monotonic: regrowth is not implemented.
+
+`CubicPruningSchedule` keeps the initial sparsity through the warm-up, then
+ramps towards the final target using
+`final + (initial - final) * (1 - progress) ** 3`. Once the end step is
+reached, the final target remains fixed. For example:
+
+```python
+from nn import Adam, Linear, ReLU, Sequential
+from prune import CubicPruningSchedule, TaylorPruner
+from train.trainer import train_classifier
+
+rng = np.random.default_rng(7)
+model = Sequential(
+    Linear(2, 16, activation="relu", rng=rng),
+    ReLU(),
+    Linear(16, 3, activation="linear", rng=rng),
+)
+optimizer = Adam(model.parameters(), lr=0.01)
+history = train_classifier(
+    model,
+    optimizer,
+    features,
+    class_ids,
+    epochs=30,
+    pruning_schedule=CubicPruningSchedule(
+        final_sparsity=0.9,
+        begin_step=5,
+        end_step=20,
+        update_frequency=1,
+    ),
+    pruner=TaylorPruner(model),
+)
+print(history[-1].sparsity)
+```
+
+The loop uses the gradients from that epoch's last mini-batch to choose
+connections, then immediately applies the new masks and clears optimizer state.
+`EpochMetrics.sparsity` reports the global masked fraction of linear weights.
+This dense NumPy implementation demonstrates masking correctness; it does not
+claim sparse-compute speedups.
+
 ## Main API
 
 ### Task 1 autodiff
@@ -151,8 +211,55 @@ initialization seed and training shuffle seed to reproduce a run.
 
 `apply_mask` remains an autodiff primitive. The Task 2 `Linear` layer reuses
 it to keep masked weights out of the forward computation and give them zero
-gradients. The optimizer also clears moments for inactive entries; no pruning
-schedule or regrowth logic is included.
+gradients.
+
+### Task 3 pruning
+
+- `taylor_saliency(weights, gradients)`: compute the first-order
+  loss-sensitivity score for each weight.
+- `CubicPruningSchedule(...)`: produce warm-up, ramp, and final sparsity
+  targets and indicate when to update a mask.
+- `TaylorPruner(model).step(target_sparsity, optimizer)`: enforce an exact
+  global mask budget across `Linear` layers and clear Adam state for pruned
+  entries.
+- `train_classifier(..., pruning_schedule=..., pruner=...)`: optionally apply
+  scheduled pruning after each selected epoch; omit both arguments for
+  ordinary Task 2 training.
+
+### Task 4 sparsity and inference evaluation
+
+Run the default reproducible sweep from the repository root:
+
+```powershell
+python -m train.sweep
+```
+
+By default, this compares Taylor and magnitude pruning at the blueprint's
+`0%, 50%, 75%, 85%, 90%, 95%, and 98%` sparsity targets across five paired
+seeds. It writes raw trials, grouped mean/standard-deviation results, measured
+CSR benchmarks, and a Pareto chart to `results\pareto_metrics.json` and
+`results\pareto_curve.svg`. Options such as `--seeds`, `--targets`,
+`--pruning-epochs`, `--cooldown-epochs`, and `--benchmark-repeats` support
+smaller reproducible runs; use `python -m train.sweep --help` to see them.
+
+The environment does not include an MNIST dataset or scikit-learn, so the
+default sweep uses a deterministic three-class Gaussian synthetic dataset.
+The results and generated claim explicitly describe that dataset and must not
+be interpreted as MNIST or production accuracy.
+
+The report includes dense FLOPs (`2 * batch * all weights`) and sparse FLOPs
+(`2 * batch * active nonzero weights`), excluding biases and activations.
+Its CSR path compiles each layer's stored weights once, checks output
+equivalence against dense NumPy inference, and times the forward kernel
+separately from CSR construction. The custom Python/NumPy CSR kernel is an
+educational sparse-execution comparison, not a promise of runtime speedup;
+consult the measured ratio and CSR build cost in the JSON output.
+
+`run_pareto_sweep(SweepConfig(...))` returns the report in memory.
+`write_sweep_results(report, output_dir)` writes the JSON and SVG files.
+The sweep uses the existing `train_classifier`, `CubicPruningSchedule`, and
+`TaylorPruner`; magnitude pruning is the comparison baseline, while Taylor
+remains the default criterion for existing Task 3 calls.
 
 ## Project layout
 
@@ -166,6 +273,7 @@ tests/
     test_autodiff.py
     test_nn.py
     test_training.py
+    test_pruning.py
 nn/
     module.py       Module and Parameter base classes
     layers.py       Linear, Sequential, and activation modules
@@ -173,4 +281,11 @@ nn/
     optim.py        Adam with bias correction and AdamW decay
 train/
     trainer.py      Mini-batch loop, metrics, clipping, and runnable demo
+    sweep.py        Task 4 multi-seed comparison, CSR inference, and reports
+prune/
+    criteria.py     Taylor saliency
+    scheduler.py    Cubic sparsity schedule
+    pruner.py       Global Taylor pruning and result metrics
+tests/
+    test_sweep.py   Task 4 sweeps, CSR, FLOPs, validation, and output tests
 ```
