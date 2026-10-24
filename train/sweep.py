@@ -447,6 +447,7 @@ def run_pareto_sweep(
                     )
 
     summary = _summarize_trials(trials, config.targets)
+    paired_comparisons = _summarize_paired_trials(trials, config.targets)
     return {
         "metadata": {
             "dataset": "deterministic three-class Gaussian synthetic classification",
@@ -463,8 +464,9 @@ def run_pareto_sweep(
         },
         "trials": trials,
         "summary": summary,
+        "paired_comparisons": paired_comparisons,
         "csr_benchmarks": csr_benchmarks,
-        "quantitative_claim": _make_claim(summary),
+        "quantitative_claim": _make_claim(summary, paired_comparisons),
     }
 
 
@@ -496,7 +498,61 @@ def _summarize_trials(
     return summary
 
 
-def _make_claim(summary: list[dict[str, object]]) -> str:
+def _summarize_paired_trials(
+    trials: list[dict[str, object]], targets: tuple[float, ...]
+) -> list[dict[str, object]]:
+    comparisons: list[dict[str, object]] = []
+    for target in targets:
+        by_seed: dict[int, dict[str, float]] = {}
+        for trial in trials:
+            if trial["target_sparsity"] != target:
+                continue
+            seed = int(trial["seed"])
+            method = str(trial["method"])
+            by_seed.setdefault(seed, {})[method] = float(trial["test_accuracy"])
+
+        missing_pairs = [
+            seed
+            for seed, accuracies in by_seed.items()
+            if set(accuracies) != set(METHODS)
+        ]
+        if not by_seed or missing_pairs:
+            raise ValueError(
+                f"Each target requires paired {METHODS} trials; "
+                f"target={target}, incomplete seeds={missing_pairs}"
+            )
+
+        paired_differences = [
+            {
+                "seed": seed,
+                "taylor_minus_magnitude": (
+                    by_seed[seed]["taylor"] - by_seed[seed]["magnitude"]
+                ),
+            }
+            for seed in sorted(by_seed)
+        ]
+        differences = [
+            float(pair["taylor_minus_magnitude"]) for pair in paired_differences
+        ]
+        comparisons.append(
+            {
+                "target_sparsity": target,
+                "comparison": "taylor_minus_magnitude",
+                "paired_seeds": len(differences),
+                "mean_accuracy_difference": statistics.mean(differences),
+                "std_accuracy_difference": (
+                    statistics.stdev(differences) if len(differences) > 1 else 0.0
+                ),
+                "per_seed_differences": paired_differences,
+            }
+        )
+    return comparisons
+
+
+def _make_claim(
+    summary: list[dict[str, object]],
+    paired_comparisons: list[dict[str, object]],
+) -> str:
     taylor_at_90 = next(
         (
             row
@@ -513,12 +569,21 @@ def _make_claim(summary: list[dict[str, object]]) -> str:
         ),
         None,
     )
-    if taylor_at_90 is None or magnitude_at_90 is None:
-        return "No 90% target was included; use the raw sweep results for a claim."
-    difference = (
-        float(taylor_at_90["mean_test_accuracy"])
-        - float(magnitude_at_90["mean_test_accuracy"])
+    paired_at_90 = next(
+        (
+            row
+            for row in paired_comparisons
+            if row["target_sparsity"] == 0.9
+        ),
+        None,
     )
+    if (
+        taylor_at_90 is None
+        or magnitude_at_90 is None
+        or paired_at_90 is None
+    ):
+        return "No 90% target was included; use the raw sweep results for a claim."
+    difference = float(paired_at_90["mean_accuracy_difference"])
     return (
         f"On the configured held-out synthetic classification benchmark at a "
         f"90% target sparsity, Taylor pruning achieved mean accuracy "
@@ -526,9 +591,13 @@ def _make_claim(summary: list[dict[str, object]]) -> str:
         f"(SD {float(taylor_at_90['std_test_accuracy']):.4f}) versus magnitude "
         f"pruning {float(magnitude_at_90['mean_test_accuracy']):.4f} "
         f"(SD {float(magnitude_at_90['std_test_accuracy']):.4f}) across "
-        f"{int(taylor_at_90['seeds'])} paired seeds; paired difference in "
-        f"means: {difference:+.4f}. This is a result for the stated synthetic "
-        f"benchmark, not an MNIST or production accuracy claim."
+        f"{int(taylor_at_90['seeds'])} paired seeds; mean paired difference "
+        f"(Taylor minus magnitude): {difference:+.4f} "
+        f"(paired-difference SD "
+        f"{float(paired_at_90['std_accuracy_difference']):.4f}). "
+        f"This descriptive result is based on the stated synthetic benchmark; "
+        f"it is not a statistical-significance claim, an MNIST result, or a "
+        f"production accuracy claim."
     )
 
 

@@ -326,6 +326,9 @@ def softmax_cross_entropy(
         raise ValueError(
             f"Target shape {targets.shape} must match logits shape {x.shape}"
         )
+    row_count = int(np.prod(x.shape[:-1], dtype=np.int64))
+    if row_count == 0:
+        raise ValueError("Cross-entropy requires at least one target row")
     if not np.all(np.isfinite(x.data)) or not np.all(np.isfinite(targets)):
         raise ValueError("Logits and targets must contain only finite values")
     if np.any(targets < 0) or not np.allclose(
@@ -340,7 +343,6 @@ def softmax_cross_entropy(
         x.data, axis=-1
     )
     per_row_loss = log_normalizer - np.sum(targets * x.data, axis=-1)
-    row_count = int(np.prod(x.shape[:-1], dtype=np.int64))
     loss = np.sum(per_row_loss) / row_count
 
     def backward(grad: FloatArray) -> tuple[FloatArray | None, ...]:

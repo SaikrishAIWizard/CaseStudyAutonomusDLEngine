@@ -15,6 +15,7 @@ from nn import Linear, ReLU, Sequential
 from train.sweep import (
     CSRMatrix,
     SweepConfig,
+    _summarize_paired_trials,
     benchmark_csr_inference,
     dense_model_forward,
     linear_to_csr,
@@ -132,9 +133,12 @@ def test_small_pareto_sweep_records_paired_raw_data_and_summary(tmp_path) -> Non
 
     assert len(report["trials"]) == 2 * 3 * 2
     assert len(report["summary"]) == 3 * 2
+    assert len(report["paired_comparisons"]) == 3
     assert len(report["csr_benchmarks"]) == 3
     assert "synthetic" in report["metadata"]["dataset"]
     assert "paired seeds" in report["quantitative_claim"]
+    assert "paired-difference SD" in report["quantitative_claim"]
+    assert "not a statistical-significance claim" in report["quantitative_claim"]
     assert all(
         0 <= trial["test_accuracy"] <= 1
         and 0 <= trial["achieved_sparsity"] <= 1
@@ -149,6 +153,9 @@ def test_small_pareto_sweep_records_paired_raw_data_and_summary(tmp_path) -> Non
                 if row["seed"] == seed and row["target_sparsity"] == target
             ]
             assert {row["method"] for row in pair} == {"magnitude", "taylor"}
+    for comparison in report["paired_comparisons"]:
+        assert comparison["paired_seeds"] == len(config.seeds)
+        assert len(comparison["per_seed_differences"]) == len(config.seeds)
 
     write_sweep_results(report, tmp_path)
     metrics_path = tmp_path / "pareto_metrics.json"
@@ -158,6 +165,35 @@ def test_small_pareto_sweep_records_paired_raw_data_and_summary(tmp_path) -> Non
     assert '<svg xmlns="http://www.w3.org/2000/svg"' in plot_path.read_text(
         encoding="utf-8"
     )
+
+
+def test_paired_summary_reports_per_seed_mean_and_sample_standard_deviation():
+    trials = [
+        {"seed": 1, "method": "taylor", "target_sparsity": 0.9, "test_accuracy": 0.8},
+        {"seed": 1, "method": "magnitude", "target_sparsity": 0.9, "test_accuracy": 0.7},
+        {"seed": 2, "method": "taylor", "target_sparsity": 0.9, "test_accuracy": 0.6},
+        {"seed": 2, "method": "magnitude", "target_sparsity": 0.9, "test_accuracy": 0.7},
+    ]
+
+    [summary] = _summarize_paired_trials(trials, (0.9,))
+
+    assert summary["mean_accuracy_difference"] == pytest.approx(0.0)
+    assert summary["std_accuracy_difference"] == pytest.approx(
+        np.std([0.1, -0.1], ddof=1)
+    )
+    assert summary["per_seed_differences"] == [
+        {"seed": 1, "taylor_minus_magnitude": pytest.approx(0.1)},
+        {"seed": 2, "taylor_minus_magnitude": pytest.approx(-0.1)},
+    ]
+
+
+def test_paired_summary_rejects_missing_method_trial():
+    trials = [
+        {"seed": 1, "method": "taylor", "target_sparsity": 0.9, "test_accuracy": 0.8}
+    ]
+
+    with pytest.raises(ValueError, match="paired"):
+        _summarize_paired_trials(trials, (0.9,))
 
 
 def test_sparse_forward_rejects_invalid_csr_structure_and_shapes() -> None:

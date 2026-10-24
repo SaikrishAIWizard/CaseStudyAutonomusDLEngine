@@ -18,9 +18,9 @@ def check_gradient(
 
     Returns the relative error and raises AssertionError when it reaches `tol`.
     """
-    if eps <= 0:
+    if not np.isfinite(eps) or eps <= 0:
         raise ValueError("Finite-difference epsilon must be positive")
-    if tol <= 0:
+    if not np.isfinite(tol) or tol <= 0:
         raise ValueError("Gradient-check tolerance must be positive")
 
     values_array = np.array(values, dtype=np.float64, copy=True)

@@ -36,9 +36,8 @@ Run these commands from the repository root:
 | Part 3 gradual self-pruning demo | `uv run python -m train.pruning_demo` |
 | Part 4 Pareto sweep | `uv run python -m train.sweep` |
 
-Part 1's test file also contains
-`test_masked_weights_have_zero_effective_value_and_gradient`, which checks
-masked-weight forward and gradient correctness. Run all regression tests with:
+Part 1's test file also checks masked-weight forward and gradient correctness.
+Run all regression tests with:
 
 ```powershell
 uv run python -m pytest -q
@@ -49,8 +48,10 @@ Part 4 writes the raw trial metrics and summary to
 Pareto curve to [`results/pareto_curve.svg`](results/pareto_curve.svg). The
 committed run uses a deterministic synthetic three-class dataset because this
 project does not include MNIST; its accuracy values are not MNIST or production
-claims. CSR timing is reported as measured and is not assumed to be faster than
-dense NumPy.
+claims. The report includes each seed's paired Taylor-minus-magnitude accuracy
+difference and its sample standard deviation; this descriptive statistic is
+not a statistical-significance test. CSR timing is reported as measured and is
+not assumed to be faster than dense NumPy.
 
 ## Repository layout
 
@@ -68,9 +69,11 @@ DESIGN.md     Derivations and architecture/design discussion
 ## Tests
 
 The Part 1 suite checks arithmetic, reductions, matrix multiplication,
-activations, cross-entropy, and gradients against finite differences. The
-masked-weight test verifies that a zero mask removes the weight from the
-forward result and gives its stored weight a zero gradient. Other tests cover
+activations, softmax, cross-entropy, and masked operations against finite
+differences. It also checks invalid finite-difference parameters and empty
+cross-entropy batches. The masked-weight test verifies that a zero mask removes
+the weight from the forward result and gives its stored weight a zero gradient.
+Other tests cover
 the neural-network layers and optimizer, pruning schedules and masks, and the
 Part 4 comparison, CSR inference, FLOP counts, validation, and output files.
 

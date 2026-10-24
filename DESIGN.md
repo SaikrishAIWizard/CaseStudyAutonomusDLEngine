@@ -79,3 +79,32 @@ models. Add health checks, per-tenant usage metrics, safe rollout/rollback,
 and a dense or previous-version fallback when sparse execution is unsupported
 or fails validation. The repository's CSR path is a correctness and
 microbenchmark example; it is not a production serving stack.
+
+### Scaling design targets (not measured results)
+
+For a 10,000+ requests-per-second service, treat throughput and latency as
+capacity-planning targets to validate with production-shaped load tests, not
+properties this repository has demonstrated. Use stateless API gateways and
+tenant-aware routing in front of worker pools partitioned by model version and
+compatible hardware. Autoscale workers using queue depth, request rate, and
+accelerator utilization, while enforcing per-tenant concurrency limits and
+weighted fair scheduling.
+
+Within a worker, group only compatible requests into micro-batches and cap the
+batching wait at 2 ms; reject or shed load when bounded queues are full instead
+of allowing unbounded latency growth. Define an explicit end-to-end p99 latency
+SLO from the product requirement, and measure queueing, batching, model
+execution, and serialization separately. Reserve capacity for health checks
+and model warm-up, and use load tests to determine replicas and headroom for
+bursts and failures. A 10,000+ QPS target is not meaningful without the
+request-size, model-mix, hardware, and p99 SLO assumptions.
+
+Store immutable model artifacts in versioned shared memory or a local
+content-addressed cache, then map read-only weight buffers into workers where
+the platform permits zero-copy access. Pinning model workers to CPU/NUMA
+resources can reduce cross-socket memory traffic; validate thread affinity and
+native-library thread counts under load to avoid oversubscription. Use BCSR or
+another block-sparse layout when pruning patterns and serving kernels support
+it. Use hardware 2:4 sparse kernels only for weights that meet that exact
+pattern; converting an arbitrary unstructured mask to 2:4 would change the
+model and requires a separate accuracy evaluation.
