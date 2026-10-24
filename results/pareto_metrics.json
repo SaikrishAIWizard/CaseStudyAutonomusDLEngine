@@ -156,7 +156,7 @@
       "method": "taylor",
       "target_sparsity": 0.95,
       "achieved_sparsity": 0.95,
-      "test_accuracy": 0.6583333333333333,
+      "test_accuracy": 1.0,
       "active_connections": 4,
       "total_connections": 80,
       "dense_flops_per_sample": 160,
@@ -178,7 +178,7 @@
       "method": "taylor",
       "target_sparsity": 0.98,
       "achieved_sparsity": 0.975,
-      "test_accuracy": 0.6583333333333333,
+      "test_accuracy": 0.3333333333333333,
       "active_connections": 2,
       "total_connections": 80,
       "dense_flops_per_sample": 160,
@@ -307,6 +307,160 @@
     },
     {
       "seed": 1,
+      "method": "taylor",
+      "target_sparsity": 0.95,
+      "achieved_sparsity": 0.95,
+      "test_accuracy": 0.3333333333333333,
+      "active_connections": 4,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 8
+    },
+    {
+      "seed": 1,
+      "method": "magnitude",
+      "target_sparsity": 0.98,
+      "achieved_sparsity": 0.975,
+      "test_accuracy": 0.3333333333333333,
+      "active_connections": 2,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 4
+    },
+    {
+      "seed": 1,
+      "method": "taylor",
+      "target_sparsity": 0.98,
+      "achieved_sparsity": 0.975,
+      "test_accuracy": 0.31666666666666665,
+      "active_connections": 2,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 4
+    },
+    {
+      "seed": 2,
+      "method": "magnitude",
+      "target_sparsity": 0.0,
+      "achieved_sparsity": 0.0,
+      "test_accuracy": 1.0,
+      "active_connections": 80,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 160
+    },
+    {
+      "seed": 2,
+      "method": "taylor",
+      "target_sparsity": 0.0,
+      "achieved_sparsity": 0.0,
+      "test_accuracy": 1.0,
+      "active_connections": 80,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 160
+    },
+    {
+      "seed": 2,
+      "method": "magnitude",
+      "target_sparsity": 0.5,
+      "achieved_sparsity": 0.5,
+      "test_accuracy": 1.0,
+      "active_connections": 40,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 80
+    },
+    {
+      "seed": 2,
+      "method": "taylor",
+      "target_sparsity": 0.5,
+      "achieved_sparsity": 0.5,
+      "test_accuracy": 1.0,
+      "active_connections": 40,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 80
+    },
+    {
+      "seed": 2,
+      "method": "magnitude",
+      "target_sparsity": 0.75,
+      "achieved_sparsity": 0.75,
+      "test_accuracy": 1.0,
+      "active_connections": 20,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 40
+    },
+    {
+      "seed": 2,
+      "method": "taylor",
+      "target_sparsity": 0.75,
+      "achieved_sparsity": 0.75,
+      "test_accuracy": 1.0,
+      "active_connections": 20,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 40
+    },
+    {
+      "seed": 2,
+      "method": "magnitude",
+      "target_sparsity": 0.85,
+      "achieved_sparsity": 0.85,
+      "test_accuracy": 0.9416666666666667,
+      "active_connections": 12,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 24
+    },
+    {
+      "seed": 2,
+      "method": "taylor",
+      "target_sparsity": 0.85,
+      "achieved_sparsity": 0.85,
+      "test_accuracy": 1.0,
+      "active_connections": 12,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 24
+    },
+    {
+      "seed": 2,
+      "method": "magnitude",
+      "target_sparsity": 0.9,
+      "achieved_sparsity": 0.9,
+      "test_accuracy": 0.9416666666666667,
+      "active_connections": 8,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 16
+    },
+    {
+      "seed": 2,
+      "method": "taylor",
+      "target_sparsity": 0.9,
+      "achieved_sparsity": 0.9,
+      "test_accuracy": 1.0,
+      "active_connections": 8,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 16
+    },
+    {
+      "seed": 2,
+      "method": "magnitude",
+      "target_sparsity": 0.95,
+      "achieved_sparsity": 0.95,
+      "test_accuracy": 0.3333333333333333,
+      "active_connections": 4,
+      "total_connections": 80,
+      "dense_flops_per_sample": 160,
+      "sparse_flops_per_sample": 8
+    },
+    {
+      "seed": 2,
       "method": "taylor",
       "target_sparsity": 0.95,
       "achieved_sparsity": 0.95,
@@ -317,160 +471,6 @@
       "sparse_flops_per_sample": 8
     },
     {
-      "seed": 1,
-      "method": "magnitude",
-      "target_sparsity": 0.98,
-      "achieved_sparsity": 0.975,
-      "test_accuracy": 0.3333333333333333,
-      "active_connections": 2,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 4
-    },
-    {
-      "seed": 1,
-      "method": "taylor",
-      "target_sparsity": 0.98,
-      "achieved_sparsity": 0.975,
-      "test_accuracy": 0.3333333333333333,
-      "active_connections": 2,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 4
-    },
-    {
-      "seed": 2,
-      "method": "magnitude",
-      "target_sparsity": 0.0,
-      "achieved_sparsity": 0.0,
-      "test_accuracy": 1.0,
-      "active_connections": 80,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 160
-    },
-    {
-      "seed": 2,
-      "method": "taylor",
-      "target_sparsity": 0.0,
-      "achieved_sparsity": 0.0,
-      "test_accuracy": 1.0,
-      "active_connections": 80,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 160
-    },
-    {
-      "seed": 2,
-      "method": "magnitude",
-      "target_sparsity": 0.5,
-      "achieved_sparsity": 0.5,
-      "test_accuracy": 1.0,
-      "active_connections": 40,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 80
-    },
-    {
-      "seed": 2,
-      "method": "taylor",
-      "target_sparsity": 0.5,
-      "achieved_sparsity": 0.5,
-      "test_accuracy": 1.0,
-      "active_connections": 40,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 80
-    },
-    {
-      "seed": 2,
-      "method": "magnitude",
-      "target_sparsity": 0.75,
-      "achieved_sparsity": 0.75,
-      "test_accuracy": 1.0,
-      "active_connections": 20,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 40
-    },
-    {
-      "seed": 2,
-      "method": "taylor",
-      "target_sparsity": 0.75,
-      "achieved_sparsity": 0.75,
-      "test_accuracy": 1.0,
-      "active_connections": 20,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 40
-    },
-    {
-      "seed": 2,
-      "method": "magnitude",
-      "target_sparsity": 0.85,
-      "achieved_sparsity": 0.85,
-      "test_accuracy": 0.9416666666666667,
-      "active_connections": 12,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 24
-    },
-    {
-      "seed": 2,
-      "method": "taylor",
-      "target_sparsity": 0.85,
-      "achieved_sparsity": 0.85,
-      "test_accuracy": 1.0,
-      "active_connections": 12,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 24
-    },
-    {
-      "seed": 2,
-      "method": "magnitude",
-      "target_sparsity": 0.9,
-      "achieved_sparsity": 0.9,
-      "test_accuracy": 0.9416666666666667,
-      "active_connections": 8,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 16
-    },
-    {
-      "seed": 2,
-      "method": "taylor",
-      "target_sparsity": 0.9,
-      "achieved_sparsity": 0.9,
-      "test_accuracy": 0.9916666666666667,
-      "active_connections": 8,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 16
-    },
-    {
-      "seed": 2,
-      "method": "magnitude",
-      "target_sparsity": 0.95,
-      "achieved_sparsity": 0.95,
-      "test_accuracy": 0.3333333333333333,
-      "active_connections": 4,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 8
-    },
-    {
-      "seed": 2,
-      "method": "taylor",
-      "target_sparsity": 0.95,
-      "achieved_sparsity": 0.95,
-      "test_accuracy": 0.325,
-      "active_connections": 4,
-      "total_connections": 80,
-      "dense_flops_per_sample": 160,
-      "sparse_flops_per_sample": 8
-    },
-    {
       "seed": 2,
       "method": "magnitude",
       "target_sparsity": 0.98,
@@ -486,7 +486,7 @@
       "method": "taylor",
       "target_sparsity": 0.98,
       "achieved_sparsity": 0.975,
-      "test_accuracy": 0.6583333333333333,
+      "test_accuracy": 0.6333333333333333,
       "active_connections": 2,
       "total_connections": 80,
       "dense_flops_per_sample": 160,
@@ -596,7 +596,7 @@
       "method": "taylor",
       "target_sparsity": 0.9,
       "achieved_sparsity": 0.9,
-      "test_accuracy": 0.9916666666666667,
+      "test_accuracy": 1.0,
       "active_connections": 8,
       "total_connections": 80,
       "dense_flops_per_sample": 160,
@@ -618,7 +618,7 @@
       "method": "taylor",
       "target_sparsity": 0.95,
       "achieved_sparsity": 0.95,
-      "test_accuracy": 0.6666666666666666,
+      "test_accuracy": 0.9916666666666667,
       "active_connections": 4,
       "total_connections": 80,
       "dense_flops_per_sample": 160,
@@ -750,7 +750,7 @@
       "method": "taylor",
       "target_sparsity": 0.9,
       "achieved_sparsity": 0.9,
-      "test_accuracy": 1.0,
+      "test_accuracy": 0.95,
       "active_connections": 8,
       "total_connections": 80,
       "dense_flops_per_sample": 160,
@@ -772,7 +772,7 @@
       "method": "taylor",
       "target_sparsity": 0.95,
       "achieved_sparsity": 0.95,
-      "test_accuracy": 0.9583333333333334,
+      "test_accuracy": 0.6333333333333333,
       "active_connections": 4,
       "total_connections": 80,
       "dense_flops_per_sample": 160,
@@ -877,8 +877,8 @@
     {
       "target_sparsity": 0.9,
       "method": "taylor",
-      "mean_test_accuracy": 0.9966666666666667,
-      "std_test_accuracy": 0.004564354645876368,
+      "mean_test_accuracy": 0.99,
+      "std_test_accuracy": 0.022360679774997918,
       "mean_achieved_sparsity": 0.9,
       "seeds": 5
     },
@@ -893,8 +893,8 @@
     {
       "target_sparsity": 0.95,
       "method": "taylor",
-      "mean_test_accuracy": 0.6466666666666667,
-      "std_test_accuracy": 0.2245056297240178,
+      "mean_test_accuracy": 0.7166666666666667,
+      "std_test_accuracy": 0.28204363334617416,
       "mean_achieved_sparsity": 0.95,
       "seeds": 5
     },
@@ -909,8 +909,8 @@
     {
       "target_sparsity": 0.98,
       "method": "taylor",
-      "mean_test_accuracy": 0.5233333333333333,
-      "std_test_accuracy": 0.17374550353894055,
+      "mean_test_accuracy": 0.44999999999999996,
+      "std_test_accuracy": 0.1674979270186815,
       "mean_achieved_sparsity": 0.975,
       "seeds": 5
     }
@@ -923,10 +923,10 @@
       "batch_size": 32,
       "dense_flops": 5120,
       "sparse_flops": 5120,
-      "dense_median_seconds": 1.889999839477241e-05,
-      "csr_median_seconds": 0.00022460000036517158,
-      "csr_build_seconds": 0.00021130000095581636,
-      "dense_to_csr_speed_ratio": 0.08414959200375499,
+      "dense_median_seconds": 1.0100004146806896e-05,
+      "csr_median_seconds": 0.00013269999908516183,
+      "csr_build_seconds": 0.00020759999461006373,
+      "dense_to_csr_speed_ratio": 0.07611156154059275,
       "max_absolute_output_error": 1.7763568394002505e-15
     },
     {
@@ -937,9 +937,9 @@
       "dense_flops": 5120,
       "sparse_flops": 2560,
       "dense_median_seconds": 9.800001862458885e-06,
-      "csr_median_seconds": 0.00011249999806750566,
-      "csr_build_seconds": 0.0002032000047620386,
-      "dense_to_csr_speed_ratio": 0.08711112916267244,
+      "csr_median_seconds": 0.00011410000297473744,
+      "csr_build_seconds": 0.00019430000247666612,
+      "dense_to_csr_speed_ratio": 0.08588958463593271,
       "max_absolute_output_error": 1.7763568394002505e-15
     },
     {
@@ -950,10 +950,10 @@
       "dense_flops": 5120,
       "sparse_flops": 1280,
       "dense_median_seconds": 9.60000033956021e-06,
-      "csr_median_seconds": 9.23000043258071e-05,
-      "csr_build_seconds": 0.00018670000281417742,
-      "dense_to_csr_speed_ratio": 0.10400866619326961,
-      "max_absolute_output_error": 1.7763568394002505e-15
+      "csr_median_seconds": 0.00010369999654358253,
+      "csr_build_seconds": 0.0001759999940986745,
+      "dense_to_csr_speed_ratio": 0.09257474117200737,
+      "max_absolute_output_error": 3.552713678800501e-15
     },
     {
       "seed": 0,
@@ -962,11 +962,11 @@
       "batch_size": 32,
       "dense_flops": 5120,
       "sparse_flops": 768,
-      "dense_median_seconds": 9.700001101009548e-06,
-      "csr_median_seconds": 9.229999704984948e-05,
-      "csr_build_seconds": 0.0001816000003600493,
-      "dense_to_csr_speed_ratio": 0.1050921062952013,
-      "max_absolute_output_error": 1.7763568394002505e-15
+      "dense_median_seconds": 1.0199997632298619e-05,
+      "csr_median_seconds": 8.949999755714089e-05,
+      "csr_build_seconds": 0.00018310000450583175,
+      "dense_to_csr_speed_ratio": 0.11396645710282254,
+      "max_absolute_output_error": 3.552713678800501e-15
     },
     {
       "seed": 0,
@@ -976,10 +976,10 @@
       "dense_flops": 5120,
       "sparse_flops": 512,
       "dense_median_seconds": 9.800001862458885e-06,
-      "csr_median_seconds": 8.140000136336312e-05,
-      "csr_build_seconds": 0.00018960000306833535,
-      "dense_to_csr_speed_ratio": 0.12039314125699406,
-      "max_absolute_output_error": 3.552713678800501e-15
+      "csr_median_seconds": 8.540000271750614e-05,
+      "csr_build_seconds": 0.0001846999948611483,
+      "dense_to_csr_speed_ratio": 0.1147541165177268,
+      "max_absolute_output_error": 4.440892098500626e-16
     },
     {
       "seed": 0,
@@ -988,11 +988,11 @@
       "batch_size": 32,
       "dense_flops": 5120,
       "sparse_flops": 256,
-      "dense_median_seconds": 9.800001862458885e-06,
-      "csr_median_seconds": 7.14999987394549e-05,
-      "csr_build_seconds": 0.00019249999604653567,
-      "dense_to_csr_speed_ratio": 0.13706296552773337,
-      "max_absolute_output_error": 8.881784197001252e-16
+      "dense_median_seconds": 1.0100004146806896e-05,
+      "csr_median_seconds": 7.480000203941017e-05,
+      "csr_build_seconds": 0.00017409999418305233,
+      "dense_to_csr_speed_ratio": 0.13502678972502521,
+      "max_absolute_output_error": 0.0
     },
     {
       "seed": 0,
@@ -1001,12 +1001,12 @@
       "batch_size": 32,
       "dense_flops": 5120,
       "sparse_flops": 128,
-      "dense_median_seconds": 9.499999578110874e-06,
-      "csr_median_seconds": 6.770000618416816e-05,
-      "csr_build_seconds": 0.00017610000213608146,
-      "dense_to_csr_speed_ratio": 0.14032494402241982,
+      "dense_median_seconds": 1.0200004908256233e-05,
+      "csr_median_seconds": 7.219999679364264e-05,
+      "csr_build_seconds": 0.00018819999968400225,
+      "dense_to_csr_speed_ratio": 0.14127431248243996,
       "max_absolute_output_error": 0.0
     }
   ],
-  "quantitative_claim": "On the configured held-out synthetic classification benchmark at a 90% target sparsity, Taylor pruning achieved mean accuracy 0.9967 (SD 0.0046) versus magnitude pruning 0.7200 (SD 0.2663) across 5 paired seeds; paired difference in means: +0.2767. This is a result for the stated synthetic benchmark, not an MNIST or production accuracy claim."
+  "quantitative_claim": "On the configured held-out synthetic classification benchmark at a 90% target sparsity, Taylor pruning achieved mean accuracy 0.9900 (SD 0.0224) versus magnitude pruning 0.7200 (SD 0.2663) across 5 paired seeds; paired difference in means: +0.2700. This is a result for the stated synthetic benchmark, not an MNIST or production accuracy claim."
 }

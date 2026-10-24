@@ -169,6 +169,22 @@ def train_classifier(
             and pruning_schedule is not None
             and pruning_schedule.should_update(epoch)
         ):
+            if pruning_criterion == "taylor":
+                calibration_indices = order[: min(batch_size, sample_count)]
+                optimizer.zero_grad()
+                calibration_logits = model(Tensor(features[calibration_indices]))
+                calibration_targets = np.eye(
+                    calibration_logits.shape[1], dtype=np.float64
+                )[targets[calibration_indices]]
+                calibration_loss = softmax_cross_entropy(
+                    calibration_logits, calibration_targets
+                )
+                if not math.isfinite(float(calibration_loss.data.item())):
+                    raise FloatingPointError(
+                        "Pruning calibration produced a non-finite loss"
+                    )
+                calibration_loss.backward()
+
             pruner.step(
                 pruning_schedule.sparsity_at(epoch),
                 optimizer,

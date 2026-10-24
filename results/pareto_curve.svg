@@ -46,7 +46,7 @@
 <circle cx="845.62" cy="335.00" r="4" fill="#d95f02"><title>magnitude: accuracy 0.3333 ± 0.0000, sparsity 0.9750</title></circle>
 <line x1="735" y1="63" x2="760" y2="63" stroke="#d95f02" stroke-width="3"/>
 <text x="768" y="67" font-family="sans-serif" font-size="12">Magnitude</text>
-<polyline points="90.00,45.00 477.50,45.00 671.25,45.00 748.75,45.00 787.50,46.45 826.25,198.70 845.62,252.35" fill="none" stroke="#1b9e77" stroke-width="2.5"/>
+<polyline points="90.00,45.00 477.50,45.00 671.25,45.00 748.75,45.00 787.50,49.35 826.25,168.25 845.62,284.25" fill="none" stroke="#1b9e77" stroke-width="2.5"/>
 <line x1="90.00" y1="45.00" x2="90.00" y2="45.00" stroke="#1b9e77"/>
 <circle cx="90.00" cy="45.00" r="4" fill="#1b9e77"><title>taylor: accuracy 1.0000 ± 0.0000, sparsity 0.0000</title></circle>
 <line x1="477.50" y1="45.00" x2="477.50" y2="45.00" stroke="#1b9e77"/>
@@ -55,12 +55,12 @@
 <circle cx="671.25" cy="45.00" r="4" fill="#1b9e77"><title>taylor: accuracy 1.0000 ± 0.0000, sparsity 0.7500</title></circle>
 <line x1="748.75" y1="45.00" x2="748.75" y2="45.00" stroke="#1b9e77"/>
 <circle cx="748.75" cy="45.00" r="4" fill="#1b9e77"><title>taylor: accuracy 1.0000 ± 0.0000, sparsity 0.8500</title></circle>
-<line x1="787.50" y1="45.00" x2="787.50" y2="48.44" stroke="#1b9e77"/>
-<circle cx="787.50" cy="46.45" r="4" fill="#1b9e77"><title>taylor: accuracy 0.9967 ± 0.0046, sparsity 0.9000</title></circle>
-<line x1="826.25" y1="101.04" x2="826.25" y2="296.36" stroke="#1b9e77"/>
-<circle cx="826.25" cy="198.70" r="4" fill="#1b9e77"><title>taylor: accuracy 0.6467 ± 0.2245, sparsity 0.9500</title></circle>
-<line x1="845.62" y1="176.77" x2="845.62" y2="327.93" stroke="#1b9e77"/>
-<circle cx="845.62" cy="252.35" r="4" fill="#1b9e77"><title>taylor: accuracy 0.5233 ± 0.1737, sparsity 0.9750</title></circle>
+<line x1="787.50" y1="45.00" x2="787.50" y2="59.08" stroke="#1b9e77"/>
+<circle cx="787.50" cy="49.35" r="4" fill="#1b9e77"><title>taylor: accuracy 0.9900 ± 0.0224, sparsity 0.9000</title></circle>
+<line x1="826.25" y1="45.56" x2="826.25" y2="290.94" stroke="#1b9e77"/>
+<circle cx="826.25" cy="168.25" r="4" fill="#1b9e77"><title>taylor: accuracy 0.7167 ± 0.2820, sparsity 0.9500</title></circle>
+<line x1="845.62" y1="211.39" x2="845.62" y2="357.11" stroke="#1b9e77"/>
+<circle cx="845.62" cy="284.25" r="4" fill="#1b9e77"><title>taylor: accuracy 0.4500 ± 0.1675, sparsity 0.9750</title></circle>
 <line x1="735" y1="81" x2="760" y2="81" stroke="#1b9e77" stroke-width="3"/>
 <text x="768" y="85" font-family="sans-serif" font-size="12">Taylor</text>
 </svg>

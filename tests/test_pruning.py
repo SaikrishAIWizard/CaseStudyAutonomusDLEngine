@@ -9,6 +9,7 @@ project_root = Path(__file__).resolve().parent.parent
 # Add the project root to Python's import search path
 sys.path.insert(0, str(project_root))
 
+from engine import Tensor, softmax_cross_entropy
 from nn import Adam, Linear, Sequential
 from prune import CubicPruningSchedule, TaylorPruner, taylor_saliency
 from train.trainer import train_classifier
@@ -234,6 +235,94 @@ def test_training_loop_applies_cubic_pruning_and_reports_sparsity() -> None:
         inactive = pruned_layer.mask == 0
         np.testing.assert_array_equal(optimizer.m[parameter_index][inactive], 0.0)
         np.testing.assert_array_equal(optimizer.v[parameter_index][inactive], 0.0)
+
+
+def test_training_recomputes_taylor_gradients_without_an_extra_optimizer_step(
+    monkeypatch,
+) -> None:
+    features = np.array(
+        [
+            [2.0, 1.0],
+            [-2.0, 1.0],
+            [1.0, 2.0],
+            [-1.0, -2.0],
+            [3.0, -1.0],
+            [-3.0, 2.0],
+            [0.5, -0.5],
+            [-0.5, 0.5],
+        ]
+    )
+    labels = np.array([0, 1, 1, 0, 0, 1, 0, 1])
+    model, layer = make_layer_model(seed=5)
+    layer.W.data[...] = [[0.2, -0.1], [-0.15, 0.25]]
+    layer.b.data[...] = [0.1, -0.1]
+    optimizer = Adam(model.parameters(), lr=0.05)
+    optimizer_step_calls = 0
+    original_optimizer_step = optimizer.step
+
+    def count_optimizer_step(*args, **kwargs) -> None:
+        nonlocal optimizer_step_calls
+        optimizer_step_calls += 1
+        original_optimizer_step(*args, **kwargs)
+
+    monkeypatch.setattr(optimizer, "step", count_optimizer_step)
+
+    pruner = TaylorPruner(model)
+    recorded: dict[str, object] = {}
+    original_pruner_step = pruner.step
+
+    def record_pruning_inputs(
+        target_sparsity: float, current_optimizer: Adam, criterion: str = "taylor"
+    ):
+        recorded["weights"] = layer.W.data.copy()
+        recorded["bias"] = layer.b.data.copy()
+        recorded["mask"] = layer.mask.copy()
+        recorded["gradients"] = layer.W.grad.copy()
+        recorded["optimizer_steps"] = current_optimizer.t
+        recorded["criterion"] = criterion
+        return original_pruner_step(
+            target_sparsity, current_optimizer, criterion=criterion
+        )
+
+    monkeypatch.setattr(pruner, "step", record_pruning_inputs)
+    seed = 11
+    batch_size = 4
+    train_classifier(
+        model,
+        optimizer,
+        features,
+        labels,
+        epochs=1,
+        batch_size=batch_size,
+        seed=seed,
+        max_grad_norm=100.0,
+        pruning_schedule=CubicPruningSchedule(
+            final_sparsity=0.25, begin_step=0, end_step=1
+        ),
+        pruner=pruner,
+    )
+
+    calibration_indices = np.random.default_rng(seed).permutation(len(features))[
+        :batch_size
+    ]
+    expected_model, expected_layer = make_layer_model(seed=6)
+    expected_layer.W.data[...] = recorded["weights"]
+    expected_layer.b.data[...] = recorded["bias"]
+    expected_layer.mask[...] = recorded["mask"]
+    calibration_logits = expected_model(Tensor(features[calibration_indices]))
+    calibration_loss = softmax_cross_entropy(
+        calibration_logits,
+        np.eye(calibration_logits.shape[1])[labels[calibration_indices]],
+    )
+    calibration_loss.backward()
+
+    assert recorded["criterion"] == "taylor"
+    assert recorded["optimizer_steps"] == 2
+    assert optimizer_step_calls == 2
+    assert optimizer.t == 2
+    np.testing.assert_allclose(
+        recorded["gradients"], expected_layer.W.grad, rtol=1e-12, atol=1e-12
+    )
 
 
 def test_training_rejects_partial_or_foreign_pruning_configuration() -> None:
